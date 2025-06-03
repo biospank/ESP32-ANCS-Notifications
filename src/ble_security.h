@@ -11,7 +11,7 @@ class NotificationSecurityCallbacks : public BLESecurityCallbacks {
 
     bool onSecurityRequest();
     
-    bool onConfirmPIN(uint32_t);
+    bool onConfirmPIN(unsigned int);
 
     void onAuthenticationComplete(esp_ble_auth_cmpl_t cmpl);
 };

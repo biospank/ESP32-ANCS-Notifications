@@ -252,6 +252,14 @@ void ANCSBLEClient::onNotificationSourceNotify(
 		pending.category = NotificationCategory(pData[2]);
 		pending.categoryCount = pData[3]; 
 	    notificationQueue->addPendingNotification(pending);
+	} else if (pData[0] == ANCS::EventIDNotificationModified) {
+	    ESP_LOGI(LOG_TAG, "notification modified, type: %d", pData[2]);
+		Notification pending;
+		pending.uuid = messageId;
+		pending.eventFlags = pData[1];
+		pending.category = NotificationCategory(pData[2]);
+		pending.categoryCount = pData[3]; 
+	    notificationQueue->addPendingNotification(pending);
 	}
 }
 
