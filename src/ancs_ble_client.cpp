@@ -186,29 +186,40 @@ void ANCSBLEClient::onDataSourceNotify(
 
 	Notification * notification = notificationQueue->getNotification(messageId);
 
-      switch (pData[5])
-      {
-        case ANCS::NotificationAttributeIDAppIdentifier:
+      switch (pData[5]) {
+      case ANCS::NotificationAttributeIDAppIdentifier:
 		    notification->type = message;
-			ESP_LOGD(LOG_TAG, "got type: %s", message.c_str());
-			break;
-        case 0x1:
-          notification->title = message;
-		  ESP_LOGD(LOG_TAG, "got title: %s", message.c_str());
-          break;
-        case 0x3:
-          notification->message = message;
-		  ESP_LOGD(LOG_TAG, "got message: %s", message.c_str());
-          break;
+        ESP_LOGD(LOG_TAG, "got type: %s", message.c_str());
+        break;
+      case 0x1:
+        notification->title = message;
+        ESP_LOGD(LOG_TAG, "got title: %s", message.c_str());
+        break;
+      case 0x3:
+        notification->message = message;
+        ESP_LOGD(LOG_TAG, "got message: %s", message.c_str());
+        break;
       }
-      // if (!notification->title.empty() && !notification->message.empty()) {
-			if (notificationCB && notification->isComplete == false) {
-				ESP_LOGI(LOG_TAG, "got a full notification: %s - %s ", notification->title.c_str(), notification->message.c_str());
-				const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
-        notificationCB(&arduinoNotification, notification);
+      if ((notification->type.compare("com.apple.mobiletimer") == 0) ||
+          (notification->type.compare("com.meanterm.clocks") == 0) ||
+          (notification->type.compare("com.junjieruan.digitalclock") == 0) ||
+          (notification->type.compare("net.hakoniwa.clock") == 0)) {
+
+        ESP_LOGI(LOG_TAG, "Bypass retrieving message info for this notification");
+
+        if (notificationCB) {
+          const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
+          notificationCB(&arduinoNotification, notification);
+        }
+        notification->isComplete = true;
+      } else if (!notification->title.empty() && !notification->message.empty()) {
+        if (notificationCB && notification->isComplete == false) {
+          ESP_LOGI(LOG_TAG, "got a full notification: %s - %s ", notification->title.c_str(), notification->message.c_str());
+          const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
+          notificationCB(&arduinoNotification, notification);
+        }
+        notification->isComplete = true;
       }
-      notification->isComplete = true;
-      // }
 }
 
 bool ANCSBLEClient::isIncomingCall(const Notification & notification) const {
