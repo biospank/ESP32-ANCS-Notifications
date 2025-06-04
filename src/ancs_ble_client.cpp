@@ -207,7 +207,7 @@ void ANCSBLEClient::onDataSourceNotify(
 
         ESP_LOGI(LOG_TAG, "Bypass retrieving message info for this notification");
 
-        if (notificationCB) {
+        if (notificationCB && notification->isComplete == false) {
           const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
           notificationCB(&arduinoNotification, notification);
         }
