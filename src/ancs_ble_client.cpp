@@ -202,14 +202,13 @@ void ANCSBLEClient::onDataSourceNotify(
           break;
       }
       // if (!notification->title.empty() && !notification->message.empty()) {
-		if (!notification->message.empty()) {
 			if (notificationCB && notification->isComplete == false) {
 				ESP_LOGI(LOG_TAG, "got a full notification: %s - %s ", notification->title.c_str(), notification->message.c_str());
 				const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
         notificationCB(&arduinoNotification, notification);
       }
       notification->isComplete = true;
-    }
+      // }
 }
 
 bool ANCSBLEClient::isIncomingCall(const Notification & notification) const {
