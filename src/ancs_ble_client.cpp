@@ -201,14 +201,15 @@ void ANCSBLEClient::onDataSourceNotify(
 		  ESP_LOGD(LOG_TAG, "got message: %s", message.c_str());
           break;
       }
-      if (!notification->title.empty() && !notification->message.empty()) {
-		if (notificationCB && notification->isComplete == false) {
-			ESP_LOGI(LOG_TAG, "got a full notification: %s - %s ", notification->title.c_str(), notification->message.c_str());
-			const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
-			notificationCB(&arduinoNotification, notification);
-		}
-		notification->isComplete = true;
+      // if (!notification->title.empty() && !notification->message.empty()) {
+		if (!notification->message.empty()) {
+			if (notificationCB && notification->isComplete == false) {
+				ESP_LOGI(LOG_TAG, "got a full notification: %s - %s ", notification->title.c_str(), notification->message.c_str());
+				const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
+        notificationCB(&arduinoNotification, notification);
       }
+      notification->isComplete = true;
+    }
 }
 
 bool ANCSBLEClient::isIncomingCall(const Notification & notification) const {
@@ -246,14 +247,6 @@ void ANCSBLEClient::onNotificationSourceNotify(
 	}
 	else if (pData[0] == ANCS::EventIDNotificationAdded) {
 	    ESP_LOGI(LOG_TAG, "notification added, type: %d", pData[2]);
-		Notification pending;
-		pending.uuid = messageId;
-		pending.eventFlags = pData[1];
-		pending.category = NotificationCategory(pData[2]);
-		pending.categoryCount = pData[3]; 
-	    notificationQueue->addPendingNotification(pending);
-	} else if (pData[0] == ANCS::EventIDNotificationModified) {
-	    ESP_LOGI(LOG_TAG, "notification modified, type: %d", pData[2]);
 		Notification pending;
 		pending.uuid = messageId;
 		pending.eventFlags = pData[1];
