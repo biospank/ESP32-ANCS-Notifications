@@ -205,9 +205,8 @@ void ANCSBLEClient::onDataSourceNotify(
           (notification->type.compare("com.junjieruan.digitalclock") == 0) ||
           (notification->type.compare("net.hakoniwa.clock") == 0)) {
 
-        ESP_LOGI(LOG_TAG, "Bypass retrieving message info for this notification");
-
         if (notificationCB && notification->isComplete == false) {
+          ESP_LOGI(LOG_TAG, "Bypass retrieving message info for this notification");
           const ArduinoNotification arduinoNotification = ArduinoNotification(*notification);
           notificationCB(&arduinoNotification, notification);
         }
