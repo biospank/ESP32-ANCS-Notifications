@@ -262,9 +262,7 @@ void ANCSBLEClient::onNotificationSourceNotify(
 		pending.category = NotificationCategory(pData[2]);
 		pending.categoryCount = pData[3]; 
 	    notificationQueue->addPendingNotification(pending);
-	} else {
-    ESP_LOGI(LOG_TAG, "notification undefined, type: %d", pData[2]);
-  }
+	}
 }
 
 
