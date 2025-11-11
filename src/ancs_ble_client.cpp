@@ -14,6 +14,8 @@
 
 #include <Arduino.h> // Only for development
 
+#include <TimeLib.h>
+
 static char LOG_TAG[] = "ANCSBLEClient";
 
 // Fixed service IDs for the Apple ANCS service
@@ -24,6 +26,35 @@ const BLEUUID ancsServiceUUID("7905F431-B5CE-4E99-A40F-4B1E122D00D0");
 
 
 static ANCSBLEClient * sharedInstance;
+
+bool updateRTC(BLEClient* pClient)
+{
+  // Get current time from iPhone's "Current Time Service"
+
+
+  std::string s = pClient->getValue(BLEUUID((uint16_t)0x1805), BLEUUID((uint16_t)0x2A2B));
+  if(s.length() == 10){
+    /*Serial.printf("CurrentTimeService: length=%d data=[", s.length());
+
+    for(int i=0; i<s.length(); i++){
+      Serial.printf("%02X ", s.c_str()[i]);
+
+    }
+    Serial.print("] ");*/
+    uint16_t year   = *((uint16_t*)(s.c_str() + 0));
+    uint8_t  month  = *((uint8_t* )(s.c_str() + 2));
+    uint8_t  day    = *((uint8_t* )(s.c_str() + 3));
+    uint8_t  hour   = *((uint8_t* )(s.c_str() + 4));
+    uint8_t  minute = *((uint8_t* )(s.c_str() + 5));
+    uint8_t  second = *((uint8_t* )(s.c_str() + 6));
+    uint8_t  wday   = *((uint8_t* )(s.c_str() + 7));
+    //Serial.printf("%04d-%02d-%02d(%d) %02d:%02d:%02d\n", year, month, day, wday, hour, minute, second);
+    setTime(hour,minute,second,day,month,year);
+
+    return true;
+  }
+  return false;
+}
 
 static void dataSourceNotifyCallback(
   BLERemoteCharacteristic* pDataSourceCharacteristic,
@@ -123,6 +154,10 @@ void ANCSBLEClient::setup(const BLEAddress * address) {
     pDataSourceCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t*)v,2,true);
     pNotificationSourceCharacteristic->registerForNotify(notificationSourceNotifyCallback);
     pNotificationSourceCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t*)v,2,true);
+
+    if(!(updateRTC(pClient))){
+        Serial.println("RTC failed to update");
+    }
 }
 
 BLEUUID ANCSBLEClient::getAncsServiceUUID() {
